@@ -1,0 +1,6 @@
+[package]
+name = "Snginx"
+version = "0.1.0"
+authors = ["inaho <inahocyc@gmail.com>"]
+
+[dependencies]
