@@ -65,6 +65,38 @@ impl<'a> Doc {
         }
         self.content = pat.replace_all(&self.content, "").to_string();
     }
+
+    fn split(&mut self) {
+        let mut temp = String::from("");
+        for ch in self.content.chars() {
+            if ch.is_whitespace() && temp.len() != 0 {
+                let count = self.index_map.entry(temp).or_insert(0);
+                *count += 1;
+                temp = String::from("");
+            } else if ch.is_alphabetic() || ch.is_ascii_digit() {
+                if ch.is_ascii_uppercase() {
+                    temp.push(ch.to_ascii_lowercase());                    
+                } else {
+                    temp.push(ch);
+                }
+            }
+        }
+        let count = self.index_map.entry(temp).or_insert(0);
+        *count += 1;
+    }
+}
+
+pub fn tokenize(input: &str) -> HashMap<String, i32> {
+    let mut doc = Doc::new(input);
+    doc.remove_hyphenation();
+    doc.retrive_email();
+    doc.retrive_http();
+    doc.retrive_ipaddress();
+    doc.retrive_quoted();
+    doc.retrive_caps();
+    doc.retrive_acronym();
+    doc.split();
+    doc.index_map
 }
 
 
@@ -136,4 +168,32 @@ fn acronym_test() {
     doc1_map.insert("CA".to_string(), 1);
     doc1.retrive_acronym();
     assert_eq!(doc1.index_map, doc1_map);
+}
+
+#[test]
+fn split_test() {
+    let mut doc1 = Doc::new("To be or not to be, not or to be.");
+    let mut doc1_map = HashMap::new();
+    doc1_map.insert("to".to_string(), 3);
+    doc1_map.insert("be".to_string(), 3);
+    doc1_map.insert("or".to_string(), 2);
+    doc1_map.insert("not".to_string(), 2);
+    doc1.split();
+    assert_eq!(doc1.index_map, doc1_map);
+}
+
+#[test]
+fn tokenize_test() {
+    let doc1 = "To be or not to be, not or to be.";
+    let mut doc1_map = HashMap::new();
+    doc1_map.insert("to".to_string(), 3);
+    doc1_map.insert("be".to_string(), 3);
+    doc1_map.insert("or".to_string(), 2);
+    doc1_map.insert("not".to_string(), 2);
+    assert_eq!(tokenize(doc1), doc1_map);
+
+    let doc2 = "While \ntraversing some 12,000 miles by sea, and 4,000 miles by land.";
+    let doc2_map = tokenize(doc2);
+    assert_eq!(doc2_map.contains_key("while"), true);
+    assert_eq!(doc2_map.contains_key("4000"), true);
 }

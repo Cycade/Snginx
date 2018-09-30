@@ -1,5 +1,9 @@
 mod tokenizer;
+use tokenizer::tokenize;
 
 fn main() {
-    println!("Hello, world!");
+    let doc2 = "While \ntraversing some 12,000 miles by sea, and 4,000 miles by land.";
+    println!("{:?}", tokenize(doc2));
+
+
 }
