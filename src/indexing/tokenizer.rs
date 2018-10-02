@@ -1,7 +1,7 @@
 extern crate regex;
 use self::regex::Regex;
 use std::collections::HashMap;
-use tokenizer::regex::Captures;
+use self::regex::Captures;
 
 #[derive(Debug)]
 struct Doc {
