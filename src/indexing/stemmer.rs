@@ -391,10 +391,25 @@ pub fn get(word: &str) -> Result<String, &str> {
             Ok(w) => {
                 let mut mw = w;
                 mw.step1ab();
+                if (mw.k < 1) {
+                    return Ok(mw.get());
+                }
                 mw.step1c();
+                if (mw.k < 2) {
+                    return Ok(mw.get());
+                }
                 mw.step2();
+                if (mw.k < 1) {
+                    return Ok(mw.get());
+                }
                 mw.step3();
+                if (mw.k < 2 || mw.j < 1) {
+                    return Ok(mw.get());
+                }
                 mw.step4();
+                if (mw.k < 2) {
+                    return Ok(mw.get());
+                }
                 mw.step5();
                 Ok(mw.get())
             }
