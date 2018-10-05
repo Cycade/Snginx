@@ -10,7 +10,7 @@ pub fn read_stopwords(stopword_path: &str) -> Vec<&'static str> {
         Err(_) => panic!("Couldn't open {}", path.display()),
         Ok(file) => file,
     };
-
+    
     let mut input =  String::new();
     match file.read_to_string(&mut input) {
         Err(_) => panic!("Couldn't read {}", path.display()),

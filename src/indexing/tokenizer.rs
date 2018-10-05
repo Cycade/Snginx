@@ -81,8 +81,11 @@ impl<'a> Doc {
                 }
             }
         }
-        let count = self.index_map.entry(temp).or_insert(0);
-        *count += 1;
+        if (temp != "") {
+            let count = self.index_map.entry(temp).or_insert(0);
+            *count += 1;
+        }
+
     }
 }
 

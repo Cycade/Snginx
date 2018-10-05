@@ -4,7 +4,6 @@ use std::path::Path;
 
 fn main() {
     let c = indexing::make_index("resources", "stopwords.txt");
-    println!("{:?}", c.display());
     // let list = vec!["a", "some"];
     // let mut c = Collection::new(list);
     // let doc1 = "Melbourne is a city not far form a sea, some sea, I mean";

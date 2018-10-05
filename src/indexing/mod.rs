@@ -12,22 +12,33 @@ type TermIDF = HashMap<String, HashMap<String, i32>>;
 // HashMap<Term: String, HashMap<doc_id: String, times: i32>>
 
 pub fn make_index<'a>(resources_dir: &str, stopword_dir: &str) -> Collection<'a> {
+    let len = resources_dir.len() + 1;
     let stopwords = stopword::read_stopwords(stopword_dir);
     let mut c = Collection::new(stopwords);
 
     let paths = fs::read_dir(resources_dir).unwrap();
-    let mut count = 0;
+    let mut count = 1;
     for path in paths {
-        let mut file = File::open(&path.unwrap().path()).expect("Couldn't open file");
+        let doc_id = path.unwrap().path();
+
+        let mut file = File::open(&doc_id).expect("Couldn't open file");
         let mut content = String::new();
         file.read_to_string(&mut content).expect("Couldn't read file");
-        c.insert_doc(&count.to_string(), &content);
-        count += 1;
+        
+        let doc_name = doc_id.to_str().unwrap();
+        let doc_name_len = &doc_name.len() - 4;
+        c.insert_doc(doc_name.get(len..doc_name_len).unwrap(), &content);
+        
     }
+
+    let out_path = Path::new("indexing.txt");
+    let mut file = File::create(&out_path).expect("Couldn't create file");
+    file.write_all(c.display().as_str().as_bytes());
     c
 
 }
 
+#[derive(Debug)]
 pub struct Collection<'a> {
     doc_num: i32,
     term_list: TermIDF,
