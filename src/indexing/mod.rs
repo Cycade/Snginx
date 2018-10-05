@@ -1,9 +1,32 @@
 mod stemmer;
 mod tokenizer;
+mod stopword;
 
 use std::collections::HashMap;
+use std::path::Path;
+use std::io::prelude::*;
+use std::fs::File;
+use std::fs;
+
 type TermIDF = HashMap<String, HashMap<String, i32>>;
 // HashMap<Term: String, HashMap<doc_id: String, times: i32>>
+
+pub fn make_index<'a>(resources_dir: &str, stopword_dir: &str) -> Collection<'a> {
+    let stopwords = stopword::read_stopwords(stopword_dir);
+    let mut c = Collection::new(stopwords);
+
+    let paths = fs::read_dir(resources_dir).unwrap();
+    let mut count = 0;
+    for path in paths {
+        let mut file = File::open(&path.unwrap().path()).expect("Couldn't open file");
+        let mut content = String::new();
+        file.read_to_string(&mut content).expect("Couldn't read file");
+        c.insert_doc(&count.to_string(), &content);
+        count += 1;
+    }
+    c
+
+}
 
 pub struct Collection<'a> {
     doc_num: i32,
