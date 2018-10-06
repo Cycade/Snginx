@@ -47,7 +47,7 @@ impl<'a> Doc {
     }
 
     fn retrive_quoted(&mut self) {
-        let pat = Regex::new(r#"("[^"]+")|('[^']+')"#).unwrap();
+        let pat = Regex::new(r#"((\n| )"[^"]+")|((\n| )'[^']+')"#).unwrap();
         self.retrive_and_replace(pat);
     }
 

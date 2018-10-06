@@ -11,13 +11,12 @@ use std::fs;
 type TermIDF = HashMap<String, HashMap<String, i32>>;
 // HashMap<Term: String, HashMap<doc_id: String, times: i32>>
 
-pub fn make_index<'a>(resources_dir: &str, stopword_dir: &str) -> Collection<'a> {
+pub fn make_index<'a>(resources_dir: &str, stopword_dir: &str) {
     let len = resources_dir.len() + 1;
     let stopwords = stopword::read_stopwords(stopword_dir);
     let mut c = Collection::new(stopwords);
 
     let paths = fs::read_dir(resources_dir).unwrap();
-    let mut count = 1;
     for path in paths {
         let doc_id = path.unwrap().path();
 
@@ -30,12 +29,11 @@ pub fn make_index<'a>(resources_dir: &str, stopword_dir: &str) -> Collection<'a>
         c.insert_doc(doc_name.get(len..doc_name_len).unwrap(), &content);
         
     }
+    println!("{} file has been indexed.", c.doc_num);
 
     let out_path = Path::new("indexing.txt");
     let mut file = File::create(&out_path).expect("Couldn't create file");
     file.write_all(c.display().as_str().as_bytes());
-    c
-
 }
 
 #[derive(Debug)]
@@ -72,7 +70,7 @@ impl<'a> Collection<'a> {
                 result.push_str(&fre.to_string());
                 result.push(',');
             }
-            let idf = (self.doc_num as f64 / self.term_list[t].len() as f64).log2();
+            let idf = (self.doc_num as f64 / self.term_list[t].len() as f64).ln();
 
             result.push_str(&idf.to_string());
             result.push('\n');
