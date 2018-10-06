@@ -63,17 +63,19 @@ impl<'a> Collection<'a> {
         let mut result = String::from("");
         for t in self.term_list.keys() {
             result.push_str(&t);
-            result.push('\n');
+            result.push_str("\r\n");
+
             for (doc, fre) in &self.term_list[t] {
                 result.push_str(doc);
                 result.push(',');
                 result.push_str(&fre.to_string());
                 result.push(',');
             }
-            let idf = (self.doc_num as f64 / self.term_list[t].len() as f64).ln();
+            result.push_str("\r\n");
 
+            let idf = (self.doc_num as f64 / self.term_list[t].len() as f64).ln();
             result.push_str(&idf.to_string());
-            result.push('\n');
+            result.push_str("\r\n");
         }
         result
     }

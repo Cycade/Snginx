@@ -23,6 +23,25 @@ impl<'a> Doc {
         self.content = pat.replace_all(&self.content, "").to_string();
     }
 
+    fn quoted_retrive_and_replace(&mut self, pat: Regex) {
+        for cap in pat.captures_iter(&self.content) {
+            let raw_token = cap.get(0).unwrap().as_str().to_string().get(1..).unwrap().to_string();
+            let mut token = String::new();
+            for ch in raw_token.chars() {
+                if ch.is_alphabetic()
+                    || ch.is_ascii_digit()
+                    || ch == ' '
+                    || ch == '\''
+                    || ch == '"'{
+                    token.push(ch);
+                }
+            }
+            let count = self.index_map.entry(token).or_insert(0);
+            *count += 1;
+        }
+        self.content = pat.replace_all(&self.content, "").to_string();
+    }
+
     fn remove_hyphenation(&mut self) {
         let pat = Regex::new(r"(?P<pre>\w+)-\n(?P<post>\w+)").unwrap();
         self.content = pat.replace_all(&self.content, |caps: &Captures| {
@@ -48,7 +67,7 @@ impl<'a> Doc {
 
     fn retrive_quoted(&mut self) {
         let pat = Regex::new(r#"((\n| )"[^"]+")|((\n| )'[^']+')"#).unwrap();
-        self.retrive_and_replace(pat);
+        self.quoted_retrive_and_replace(pat);
     }
 
     fn retrive_caps(&mut self) {
