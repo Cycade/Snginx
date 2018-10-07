@@ -1,5 +1,3 @@
-mod stemmer;
-mod tokenizer;
 mod stopword;
 
 use std::collections::HashMap;
@@ -7,6 +5,7 @@ use std::path::Path;
 use std::io::prelude::*;
 use std::fs::File;
 use std::fs;
+use utils::doc_index;
 
 type TermIDF = HashMap<String, HashMap<String, i32>>;
 // HashMap<Term: String, HashMap<doc_id: String, times: i32>>
@@ -88,17 +87,6 @@ struct IndexedDoc<'a> {
 
 impl<'a> IndexedDoc<'a> {
     fn new(id: &'a str, content: &'a str) -> IndexedDoc<'a> {
-        IndexedDoc { doc_id: id, indexing_map: indexing(content) }
+        IndexedDoc { doc_id: id, indexing_map: doc_index(content) }
     }
-}
-
-fn indexing(doc: &str) -> HashMap<String, i32> {
-    let raw_map = tokenizer::tokenize(doc);
-    let mut stemmed_map: HashMap<String, i32> = HashMap::new();
-    for (term, fre) in &raw_map {
-        let stemmed_term = stemmer::get(term).unwrap();
-        let count = stemmed_map.entry(stemmed_term).or_insert(0);
-        *count += fre;
-    }
-    stemmed_map
 }

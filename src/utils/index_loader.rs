@@ -3,12 +3,6 @@ use std::collections::HashMap;
 use std::fs::File;
 use std::io::prelude::*;
 
-#[derive(Debug)]
-pub struct IndexSet {
-    doc_num: i32,
-    content: Vec<TermDoc>,
-}
-
 pub fn load_index(path: &str) -> IndexSet {
     let path = Path::new(path);
     let mut file = File::open(&path).expect("Couldn't found index file");
@@ -16,6 +10,12 @@ pub fn load_index(path: &str) -> IndexSet {
     file.read_to_string(&mut input).expect("Couldn't read from index file");
 
     IndexSet::new(input)
+}
+
+#[derive(Debug)]
+pub struct IndexSet {
+    doc_num: i32,
+    content: Vec<TermDoc>,
 }
 
 impl IndexSet {
@@ -34,6 +34,42 @@ impl IndexSet {
             count += 3;
         }
 
+        result
+    }
+
+    pub fn search_term(&self, term: String) -> Option<HashMap<String, i32>> {
+        let mut result: HashMap<String, i32> = HashMap::new(); 
+        for termdoc in &self.content {
+            if (termdoc.term == term) {
+                result = termdoc.doc.clone();
+            }
+        }
+        match result.len() {
+            0 => None,
+            _ => Some(result),
+        }
+    }
+
+    pub fn search_term_idf(&self, term: String) -> Option<f64> {
+        for termdoc in &self.content {
+            if (termdoc.term == term) {
+                return Some(termdoc.tfidf);
+            }
+        }
+        None
+    }
+
+    pub fn get_vector(&self, doc: String, terms: Vec<String>) -> Vec<f64> {
+        let mut result: Vec<f64> = vec![];
+        for term in terms {
+            let termIndex = self.search_term(term.clone()).unwrap();
+            match termIndex.get(&doc) {
+                None => result.push(0.0 as f64),
+                Some(&times) => result.push(
+                    times as f64 * self.search_term_idf(term).unwrap()
+                ),
+            };
+        }
         result
     }
 }
